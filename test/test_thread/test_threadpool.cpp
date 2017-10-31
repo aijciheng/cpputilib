@@ -1,6 +1,7 @@
 #include "thread/threadpool.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -10,7 +11,8 @@ class PrintTask : public Task {
     }
 
     void run() {
-        printf("hello word%d\n", value_);
+        //printf("hello word \n");
+        value_ = 3;
     }
 
  private:
@@ -21,16 +23,22 @@ void delete_fun(void *obj) {
     delete (PrintTask*)obj;
 }
 
-#define thread_count 3
-#define work_count 100
+#define thread_count 10
+#define work_count 1000
 int main() {
     printf("thread_count : %d, work_count : %d\n", thread_count, work_count);
     ThreadPool thread_pool(thread_count);
 
     for (int i = 0; i < work_count; i++) {
         PrintTask *task = new PrintTask(i);
-        thread_pool.execute(task, delete_fun);
+        if (thread_pool.execute(task, delete_fun) != THREADPOOL_OK) {
+            printf("thread execute failed\n");
+            exit(-1);
+        }
     }
+    printf("==================\n");
+    thread_pool.wait();
+    printf("==================\n");
     thread_pool.wait();
     return 0;
 }

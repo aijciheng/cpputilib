@@ -58,8 +58,6 @@ class ThreadPool {
     }
 
     ~ThreadPool() {
-        wait();
-
         /* delete task wrapper */
         for (std::list<TaskWrapper*>::iterator it = tasks_.begin();
                 it != tasks_.end(); it++) {
@@ -105,6 +103,7 @@ class ThreadPool {
         /* delete thread */
         for (std::list<pthread_t>::iterator it = threads_.begin();
                 it != threads_.end(); it++) {
+            printf("%ld\n", *it);
             pthread_join(*it, NULL);
         }
     }

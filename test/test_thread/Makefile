@@ -11,7 +11,7 @@ $(app):$(objs)
 	g++ -o $@ $^ $(libs) -lcurl -std=c++11
 
 .cpp.o:
-	g++ -c -o $@ $^ -O2 -std=c++11 $(include)
+	g++ -c -o $@ $^ -std=c++11 $(include) -g
 
 clean:
 	rm -rf $(app) $(objs)

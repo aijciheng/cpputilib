@@ -14,6 +14,8 @@ typedef enum {
     JSON_NODE_NO_EXIST
 } JSON_STATE;
 
+typedef int json_error_type;
+
 class JsonObject {
  public:
     JsonObject() : root_(NULL), is_root_(false), next_(NULL){};
@@ -56,13 +58,40 @@ class JsonObject {
         next_ = new_json_object;
     }
 
-    const char *string_value(const std::string &key) {
-        if (root_ == NULL) return NULL;
-        json_t *node = json_object_get(root_, key.c_str());
-        if (node == NULL) {
+    /**
+     * on success, type value is 0, on error, type value is -1 
+     */
+    const char *string_value(const std::string &key, json_error_type *type) {
+        if (root_ == NULL) { 
+            if (type) *type = JSON_ERROR;
             return NULL;
         }
+        json_t *node = json_object_get(root_, key.c_str());
+        if (node == NULL) {
+            if (type) *type = JSON_ERROR;
+            return NULL;
+        }
+    
+        if (type) *type = JSON_OK;
         return json_string_value(node);
+    }
+
+    /**
+     * on success, type value is 0, on error, type value is -1
+     */
+    const int int_value(const std::string &key, json_error_type *type) {
+        if (root_ == NULL) {
+            if (type) *type = JSON_ERROR;
+            return -1;
+        }
+        json_t *node = json_object_get(root_, key.c_str());
+        if (node == NULL) {
+            if (type) *type = JSON_ERROR;
+            return -1;
+        }
+    
+        if (type) *type = JSON_OK;
+        return json_integer_value(node);
     }
  private:
     
