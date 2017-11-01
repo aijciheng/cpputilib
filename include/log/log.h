@@ -11,21 +11,21 @@
 extern thread_local std::string request_id;
 
 #define LOG_INFO(format, ...)                                                                           \
-{                                                                                                       \
+do {                                                                                                    \
     time_t t = time(0);                                                                                 \
     struct tm ttt = *localtime(&t);                                                                     \
     fprintf(stdout, "[INFO] [%s] [%lu %4d-%02d-%02d %02d:%02d:%02d] [%s:%s:%d] " format "",             \
             request_id.c_str(), pthread_self(), ttt.tm_year + 1900, ttt.tm_mon + 1, ttt.tm_mday,        \
             ttt.tm_hour, ttt.tm_min, ttt.tm_sec, __FILE__,  __FUNCTION__ , __LINE__, ##__VA_ARGS__);    \
-}
+} while(0)
 
 #define LOG_ERR(format, ...)                                                                            \
-{                                                                                                       \
+do {                                                                                                    \
     time_t t = time(0);                                                                                 \
     struct tm ttt = *localtime(&t);                                                                     \
     fprintf(stderr, "[ERROR] [%s] [%lu %4d-%02d-%02d %02d:%02d:%02d] [%s:%s:%d] " format "",            \
             request_id.c_str(), pthread_self(), ttt.tm_year + 1900, ttt.tm_mon + 1, ttt.tm_mday,        \
             ttt.tm_hour, ttt.tm_min, ttt.tm_sec, __FILE__, __FUNCTION__ , __LINE__, ##__VA_ARGS__);     \
-}
+} while (0)
 
 #endif
