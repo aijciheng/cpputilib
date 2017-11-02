@@ -10,8 +10,12 @@ class PrintTask : public Task {
     PrintTask(int value) : value_(value) {
     }
 
+    ~PrintTask() {
+        //printf("free print task\n");
+    }
+
     void run() {
-        //printf("hello word \n");
+        printf("hello word \n");
         value_ = 3;
     }
 
@@ -24,7 +28,7 @@ void delete_fun(void *obj) {
 }
 
 #define thread_count 10
-#define work_count 1000
+#define work_count 100000
 int main() {
     printf("thread_count : %d, work_count : %d\n", thread_count, work_count);
     ThreadPool thread_pool(thread_count);
@@ -36,8 +40,6 @@ int main() {
             exit(-1);
         }
     }
-    printf("==================\n");
-    thread_pool.wait();
     printf("==================\n");
     thread_pool.wait();
     return 0;

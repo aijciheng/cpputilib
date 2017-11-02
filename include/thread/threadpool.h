@@ -22,7 +22,7 @@ class TaskWrapper {
 
     ~TaskWrapper() {
         if (delete_fun_) {
-            delete_fun_((void*)task_);
+            delete_fun_(task_);
         }
     }
 
@@ -42,6 +42,12 @@ typedef enum {
     THREADPOOL_HAS_DESTROY,
     THREADPOOL_ERROR
 } THREADPOOL_STATE;
+
+static void default_delete_fun(void *obj) {
+    delete (Task*)obj;
+}
+
+#define DEFAULT_DEL_FUN default_delete_fun
 
 class ThreadPool {
  public:
@@ -96,14 +102,25 @@ class ThreadPool {
         return task_wrapper; 
     }
 
+    void notify_all_threads() {
+        std::lock_guard<std::mutex> lock(lock_);
+        cond_var_.notify_all();
+    }
+
     void wait() {
+        std::lock_guard<std::mutex> wait_lock(wait_lock_);
+        if (is_destroy_) {
+            return;
+        }
         /* flag destroy */
         is_destroy_ = true;
+
+        /* notify_all_threds */
+        notify_all_threads();
 
         /* delete thread */
         for (std::list<pthread_t>::iterator it = threads_.begin();
                 it != threads_.end(); it++) {
-            printf("%ld\n", *it);
             pthread_join(*it, NULL);
         }
     }
@@ -128,6 +145,7 @@ class ThreadPool {
     std::list<TaskWrapper*> tasks_;
     std::list<pthread_t> threads_;
     std::mutex lock_;
+    std::mutex wait_lock_;
     std::condition_variable cond_var_;
     bool is_init_;
     volatile bool is_destroy_;
