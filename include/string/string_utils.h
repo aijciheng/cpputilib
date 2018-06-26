@@ -23,7 +23,7 @@ inline int utf8_word_count(const char *line) {
 
     int count = 0;
     int word_len = 0;
-    for (int i = 0; i < strlen(line); ) {
+    for (size_t i = 0; i < strlen(line); ) {
         word_len = utf8_word_len(line[i]);
         if (word_len < 0) {
             return -1;
