@@ -16,6 +16,11 @@ typedef enum {
 
 typedef int json_error_type;
 
+#define array_foreach(array, index, value) \
+    for(index = 0; \
+        index < array->array_size() && (value = array->json_array(index)); \
+        index++)
+
 class JsonObject {
  public:
     JsonObject() : root_(NULL), is_root_(false), next_(NULL){};
@@ -56,6 +61,41 @@ class JsonObject {
         new_json_object->root_ = node;
         new_json_object->next_ = next_; 
         next_ = new_json_object;
+        return new_json_object;
+    }
+
+    JsonObject *json_array(const int index) {
+        if (root_ == NULL) return NULL;
+        json_t *node = json_array_get(root_, index);
+        if (node == NULL) {
+            return NULL;
+        }
+
+        JsonObject *new_json_object = new JsonObject();
+        new_json_object->root_ = node;
+        new_json_object->next_ = next_;
+        next_ = new_json_object;
+        return new_json_object;
+    }
+
+    const int array_size() {
+        if (root_ == NULL) {
+            return -1;
+        }
+        return json_array_size(root_);
+    }
+
+    /**
+     * on success, type value is 0, on error, type value is -1 
+     */
+    const char *string_value(json_error_type *type) {
+        if (root_ == NULL) {
+            if (type) *type = JSON_ERROR;
+            return NULL;
+        }
+
+        if (type) *type = JSON_OK;
+        return json_string_value(root_);
     }
 
     /**
@@ -93,8 +133,8 @@ class JsonObject {
         if (type) *type = JSON_OK;
         return json_integer_value(node);
     }
+
  private:
-    
     json_t *root_;
     bool is_root_;
     JsonObject *next_;
