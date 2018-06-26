@@ -3,16 +3,24 @@
 #include <iostream>
 
 int main() {
+    /* json object */
     JsonObject jsonObject;
-    jsonObject.loads("{\"content\":\"2234324324\", \"new_content\":{\"key\":\"112\"}}");
+    jsonObject.loads("{\"content\":\"2234324324\", \"new_content\":{\"key\":\"112\"}, \"words\":[\"测试\", \"2017\"]}");
 
-    std::string value = jsonObject.string_value("content");
+    json_error_type error;
+    std::string value = jsonObject.string_value("content", &error);
     std::cout << value << std::endl;
 
     JsonObject *newObject = jsonObject.json_object("new_content");
     newObject = jsonObject.json_object("new_content");
     newObject = jsonObject.json_object("new_content");
-    std::cout << newObject->string_value("key") << std::endl;
+    std::cout << newObject->string_value("key", &error) << std::endl;
+
+    int index = 0;
+    JsonObject *itemObject; 
+    array_foreach(jsonObject.json_object("words"), index, itemObject) {
+        std::cout << itemObject->string_value(&error) << std::endl;
+    }
 
     /* json data */
     JsonData data;
